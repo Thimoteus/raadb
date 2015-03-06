@@ -1,0 +1,33 @@
+{
+  "name": "raadb",
+  "version": "0.1.0",
+  "description": "reddit as a database",
+  "main": "build/raadb.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "jaraw": "^0.2.2-beta1",
+    "molten-core": "^1.1.0",
+  },
+  "devDependencies": {
+    "jshint": "^2.6.3",
+    "chai": "^2.1.1",
+    "istanbul": "^0.3.7",
+    "uglify-js": "^2.4.16",
+    "mocha": "^2.1.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/thimoteus/raadb"
+  },
+  "keywords": [
+    "reddit",
+    "database"
+  ],
+  "author": "thimoteus",
+  "license": "WTFPL"
+}
