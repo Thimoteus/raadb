@@ -43,7 +43,7 @@ var getDbEndpt = function (db) {
 var createComment = function (thing, msg, cb) {
    // Takes a `thing` object, `msg` string and `cb` function.
    // Replies to `thing` with `msg`, then calls `cb`.
-   cb == null && (cb = _.id);
+   if (cb === undefined) cb = _.id;
    var endpt = '/api/comment';
    var opts = {
       api_type: 'json',
@@ -54,7 +54,7 @@ var createComment = function (thing, msg, cb) {
 };
 
 var createSelfText = function (sr, title, body, cb) {
-   cb == null && (cb = _.id);
+   if (cb === undefined) cb = _.id;
    var endpt = '/api/submit';
    var opts = {
       api_type: 'json',
@@ -70,7 +70,6 @@ var createSelfText = function (sr, title, body, cb) {
 };
 
 module.exports = {
-   jaraw: jaraw,
    getListing: getListing,
    getDbEndpt: getDbEndpt,
    createComment: createComment,

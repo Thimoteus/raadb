@@ -82,9 +82,11 @@ var getCollFromStr = function (db, coll, cb) {
 // Takes string `db`, string `coll`, any `doc` and function `cb`.
 // If there's a collection referred to by `coll`, will insert `doc` into
 // that collection. Otherwise, will create a collection and then do the
-// insertion, and calls the callback with the doc id.
+// insertion, and calls the callback with the collection and doc id.
 var insert = function (db, coll, doc, cb) {
-   cb == null && (cb = _.id);
+   if (cb === undefined) cb = _.id;
+   print("inserting new doc into " + coll + ":");
+   print(doc);
 
    var _insert = function (err, collection) {
       if (err) return cb(err);
@@ -93,25 +95,16 @@ var insert = function (db, coll, doc, cb) {
       var docData = _.encode64(JSON.stringify(doc));
       var hash = _.unlines([docId, docData]);
       createComment(collection, hash);
-      cb(err, docId);
+      cb(err, collection, docId);
    };
 
    getCollFromStr(db, coll, _insert);
 };
 
-var find = function (db, query, cb) {
-   cb == null && (cb = _.id);
-
-   if (_.isType('String'), query) // TODO: finish this
-}
-
 var raadb = function (db) {
    // takes a subreddit, then exposes the raadb api
 
-   raadb.prototype.insert = _.curry(insert)(db);
-
-   raadb.prototype.collectionsExist = _.curry(collectionsExist)(db);
-   raadb.prototype.createCollection = _.curry(createCollection)(db);
+   this.insert = _.curry(insert)(db);
 };
 
 module.exports = raadb;
