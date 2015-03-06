@@ -7,18 +7,19 @@
     "test": "test"
   },
   "dependencies": {
-    "jaraw": "^0.2.2-beta1",
-    "molten-core": "^1.1.0",
+    "jaraw": "*",
+    "molten-core": "thimoteus/molten-core"
   },
   "devDependencies": {
-    "jshint": "^2.6.3",
     "chai": "^2.1.1",
-    "istanbul": "^0.3.7",
-    "uglify-js": "^2.4.16",
-    "mocha": "^2.1.0"
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-uglify": "^0.8.0",
+    "grunt-mocha-test": "^0.12.7"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "grunt test"
   },
   "repository": {
     "type": "git",
