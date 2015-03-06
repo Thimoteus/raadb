@@ -32,15 +32,14 @@ var collectionsExist = function (db, colls, cb) {
       limit: 100
    };
    var callback = function (err, res, listing) {
-      if (err || !res || (res.responseCode != 200) || !listing) {
-         cb(new Error('Could not contact reddit'));
-         return; //TODO: Figure out if I need to pass errs and resses up the stack
+      if (err || !res || (res.statusCode != 200) || !listing) {
+         return cb(new Error('Could not contact reddit'));
       }
       var f = function (x) {
          return _.includes(colls, x.title);
       };
       var xs = _.filter(f, listing);
-      return cb(err, res, xs);
+      return cb(err, xs);
    };
    getListing(endpt, opts, callback);
 };
@@ -48,6 +47,7 @@ var collectionsExist = function (db, colls, cb) {
 var createCollection = function (db, coll, cb) {
    // Takes a string `db`, string `coll` and function `cb` and creates a new
    // collection in db, then calls cb.
+
    var id = createId();
    createSelfText(db, coll, id, cb);
 };
@@ -57,17 +57,22 @@ var getCollFromStr = function (db, coll, cb) {
    // If `coll` doesn't refer to an existing collection, creates one,
    // then calls itself. Otherwise, calls `cb` with possible error, response
    // object and collection.
-   var callback = function (err, res, colls) {
-      if (err || !res || (res.responseCode != 200) || !colls) {
-         cb(new Error('Could not access collection ' + coll));
-         return;
-      }
+
+   var callback = function (err, colls) {
+      if (err) return cb(err);
+
+      var returnsStumpyCollection = function (err, res, bod) {
+         var stumpyCollection = JSON.parse(bod).json.data;
+         cb(err, stumpyCollection);
+      };
+
       if (colls.length === 0) {
-         createCollection(db, coll, getCollFromStr);
+         createCollection(db, coll, returnsStumpyCollection);
       } else {
-         cb(err, res, colls[0]);
+         cb(err, colls[0]);
       }
    };
+
    collectionsExist(db, [coll], callback);
 };
 
@@ -80,33 +85,33 @@ var getCollFromStr = function (db, coll, cb) {
 // insertion, and calls the callback with the doc id.
 var insert = function (db, coll, doc, cb) {
    cb == null && (cb = _.id);
-   var _insert = function (err, res, collection) {
-      if (err || !res || (res.responseCode != 200) || !collection) {
-         cb(new Error('Could not perform insert into ' + coll));
-         return;
-      }
+
+   var _insert = function (err, collection) {
+      if (err) return cb(err);
+
       var docId = createId();
       var docData = _.encode64(JSON.stringify(doc));
       var hash = _.unlines([docId, docData]);
-      comment(collection, hash);
-      cb(err, res, docId);
+      createComment(collection, hash);
+      cb(err, docId);
    };
+
    getCollFromStr(db, coll, _insert);
 };
 
-var remove = function (db, coll, doc, cb) {
+var find = function (db, query, cb) {
+   cb == null && (cb = _.id);
 
-};
+   if (_.isType('String'), query) // TODO: finish this
+}
 
 var raadb = function (db) {
    // takes a subreddit, then exposes the raadb api
 
    raadb.prototype.insert = _.curry(insert)(db);
-   raadb.prototype.remove = _.curry(remove)(db);
-   // raadb.prototype.find = find;
-   // raadb.prototype.insert = _.curry(insert)(_db, _colls);
-   // raadb.prototype.remove = _.curry(remove)(_db, _colls);
-   // raadb.prototype.find = _.curry(find)(_db, _colls);
+
+   raadb.prototype.collectionsExist = _.curry(collectionsExist)(db);
+   raadb.prototype.createCollection = _.curry(createCollection)(db);
 };
 
 module.exports = raadb;

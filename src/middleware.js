@@ -2,6 +2,7 @@
 // Version: 0.1.0
 
 var settings = require('../settings'),
+   Jaraw = require('jaraw'),
    _ = require('molten-core');
 
 var jaraw = new Jaraw({
@@ -43,17 +44,17 @@ var createComment = function (thing, msg, cb) {
    // Takes a `thing` object, `msg` string and `cb` function.
    // Replies to `thing` with `msg`, then calls `cb`.
    cb == null && (cb = _.id);
-   var endpt = '/api/comment'
+   var endpt = '/api/comment';
    var opts = {
       api_type: 'json',
       thing_id: thing.name,
       text: msg
-   }
+   };
    return jaraw.post(endpt, opts, cb);
 };
 
 var createSelfText = function (sr, title, body, cb) {
-   cb = null && (cb = _.id);
+   cb == null && (cb = _.id);
    var endpt = '/api/submit';
    var opts = {
       api_type: 'json',
@@ -65,12 +66,13 @@ var createSelfText = function (sr, title, body, cb) {
       then: 'comments',
       title: title
    };
-   return jaraw.post(endpt, opts, cb);
-}
+   jaraw.post(endpt, opts, cb);
+};
 
 module.exports = {
+   jaraw: jaraw,
    getListing: getListing,
    getDbEndpt: getDbEndpt,
-   createComment: createcomment,
+   createComment: createComment,
    createSelfText: createSelfText
-}
+};
