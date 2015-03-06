@@ -2,13 +2,14 @@ module.exports = function (grunt) {
 
    grunt.loadNpmTasks('grunt-contrib-jshint');
    grunt.loadNpmTasks('grunt-contrib-uglify');
+   grunt.loadNpmTasks('grunt-mocha-test');
 
    grunt.initConfig({
       jshint: {
          options: {
             jshintrc: true
          },
-         all: [ 'Gruntfile.js', 'src/**/*.js' ]
+         all: [ 'Gruntfile.js', 'src/**/*.js', 'test/**/*.js' ]
       },
       uglify: {
          options: {
@@ -24,8 +25,14 @@ module.exports = function (grunt) {
                dest: 'build'
             }]
          }
+      },
+      mochaTest: {
+         test: {
+            src: ['test/**/*.js']
+         }
       }
    });
 
    grunt.registerTask('default', ['jshint', 'uglify']);
+   grunt.registerTask('test', 'mochaTest');
 };

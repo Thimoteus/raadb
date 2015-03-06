@@ -50,7 +50,7 @@ insert(String:coll, Object:doc, Function:cb);
 
 Inserts `doc` into the collection represented by `coll`, then calls the callback `cb`.
 
-`cb` takes two arguments, an error and a string representing the id of `doc`.
+`cb` takes three arguments, an error, an Object collection representing a reddit Thing, and a String representing the id of `doc`.
 
 ## Contributing
 
@@ -62,6 +62,14 @@ To run tests, run `grunt test`.
 
 There are some coding conventions.
 Many functions deal with collections in different ways; a variable named `coll` will always refer to a string referring to the collection's (equivalently, selftext post's) title. `colls` refers to an array of `coll`s. `collection` refers to a reddit [thing](https://www.reddit.com/dev/api#fullnames).
+
+### A note on tests
+
+The `insert` method will pass, but without creating a new document.
+This is because in the method body, the callback is called asynchronously with the comment function.
+In the test for insert, `done()` is called in the callback of `insert`.
+I suspect mocha does not allow the comment function to continue once `done()` is called.
+Testing `insert` manually will create a document, however.
 
 ## License
 

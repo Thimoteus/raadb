@@ -82,7 +82,7 @@ var getCollFromStr = function (db, coll, cb) {
 // Takes string `db`, string `coll`, any `doc` and function `cb`.
 // If there's a collection referred to by `coll`, will insert `doc` into
 // that collection. Otherwise, will create a collection and then do the
-// insertion, and calls the callback with the doc id.
+// insertion, and calls the callback with the collection and doc id.
 var insert = function (db, coll, doc, cb) {
    if (cb === undefined) cb = _.id;
    print("inserting new doc into " + coll + ":");
@@ -95,7 +95,7 @@ var insert = function (db, coll, doc, cb) {
       var docData = _.encode64(JSON.stringify(doc));
       var hash = _.unlines([docId, docData]);
       createComment(collection, hash);
-      cb(err, docId);
+      cb(err, collection, docId);
    };
 
    getCollFromStr(db, coll, _insert);
