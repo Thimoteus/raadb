@@ -7,9 +7,10 @@ var _ = require('molten-core'),
    getListing = mid.getListing,
    createComment = mid.createComment,
    createSelfText = mid.createSelfText,
+   getCommentsFromPost = mid.getCommentsFromPost,
    verbose = true,
-   Raadb, print, say, createId, collectionsExist, createCollection,
-   getCollFromStr, insert, find;
+   Raadb, print, say, createId, docId, docData, collectionsExist,
+   createCollection, collToCollection, insert, find;
 
 print = function print(it) {
    console.log(it);
@@ -21,8 +22,21 @@ say = function say(it) {
 
 // database metafunctions
 // these are not exposed by the raadb api
+
+// creates a base 36 id
 createId = function createId() {
    return Date.now().toString(36);
+};
+
+// returns the id of a doc
+docId = function docId(doc) {
+   return _.lines(doc.body)[0];
+};
+
+// returns the data of a doc
+docData = function docData(doc) {
+   data = _.lines(doc.body)[1];
+   return JSON.parse(_.decode64(data));
 };
 
 collectionsExist = function collectionsExist(db, colls, cb) {
@@ -62,7 +76,7 @@ createCollection = function createCollection(db, coll, cb) {
    createSelfText(db, coll, id, cb);
 };
 
-getCollFromStr = function getCollFromStr(db, coll, cb) {
+collToCollection = function collToCollection(db, coll, create, cb) {
    // Takes a string `db`, string `coll` and function `cb`.
    // If `coll` doesn't refer to an existing collection, creates one,
    // then calls itself. Otherwise, calls `cb` with possible error, response
@@ -78,10 +92,12 @@ getCollFromStr = function getCollFromStr(db, coll, cb) {
          cb(err, stumpyCollection);
       };
 
-      if (colls.length === 0) {
+      if (colls.length === 0 && !!create) {
          createCollection(db, coll, returnsStumpyCollection);
-      } else {
+      } else if (colls.length > 0) {
          cb(err, colls[0]);
+      } else {
+         cb(new Error('Collection ' + coll + ' doesn\'t exist'));
       }
    };
 
@@ -114,7 +130,7 @@ insert = function insert(db, coll, doc, cb) {
       cb(err, collection, docId);
    };
 
-   getCollFromStr(db, coll, _insert);
+   collToCollection(db, coll, true, _insert);
 };
 
 // Takes a string `db`, string `coll`, string/function `query`, and function
@@ -123,19 +139,40 @@ insert = function insert(db, coll, doc, cb) {
 // for all docs such that `query(doc)` is truthy.
 // `cb` accepts two arguments, an error and an array.
 find = function find(db, coll, query, cb) {
+   var _find, _query;
+
    if (_.isType('String', query)) {
-      // stuff
+      _query = function (doc) {
+         return docId(doc) === query;
+      };
    } else if (_.isType('Function', query)) {
-      // stuff
+      _query = query;
    } else {
       throw new Error('query must be a string or a predicate');
    }
-}
+
+   _find = function _find(err, collection) {
+      if (err) return cb(err);
+      getCommentsFromPost(db, collection, function (err, docs) {
+         var matches;
+
+         matches = _.filter(_query, docs);
+
+         if (_.isType('String', query)) return cb(err, matches[0]);
+         return cb(err, matches);
+      });
+   };
+
+   collToCollection(db, coll, false, _find);
+};
 
 Raadb = function Raadb(db) {
    // takes a subreddit, then exposes the raadb api
 
    this.insert = _.curry(insert)(db);
+   this.find = _.curry(find)(db);
+   this.docId = docId;
+   this.docData = docData;
 };
 
 module.exports = Raadb;

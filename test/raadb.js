@@ -22,7 +22,7 @@ describe('find', function () {
    var id;
    this.timeout(0);
 
-   beforeEach(function (done) {
+   before(function (done) {
       db.insert('collection', 'data', function (err, collection, docId) {
          if (err) return done(err);
          id = docId;
@@ -31,9 +31,9 @@ describe('find', function () {
    });
 
    it('should find a document based on id', function (done) {
-      if (err) throw err;
       db.find('collection', id, function (err, doc) {
-         docId = _.lines(doc.body)[0];
+         if (err) throw err;
+         docId = db.docId(doc);
          assert.strictEqual(id, docId);
          done();
       });
@@ -42,10 +42,17 @@ describe('find', function () {
    it('should find a document based on a predicate', function (done) {
       var predicate;
       predicate = function predicate(doc) {
-         return doc === 'data';
+         return db.docData(doc) === 'data';
       };
       db.find('collection', predicate, function (err, docs) {
          assert.isAbove(docs.length, 0);
+         done();
+      });
+   });
+
+   it('should return an error with a nonexisting database', function (done) {
+      db.find('bollection', _.id, function (err, doc) {
+         assert.isNotNull(err);
          done();
       });
    });
