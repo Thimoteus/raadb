@@ -52,6 +52,23 @@ Inserts `doc` into the collection represented by `coll`, then calls the callback
 
 `cb` takes three arguments, an error, an Object collection representing a reddit Thing, and a String representing the id of `doc`.
 
+```javascript
+find(String:coll, String/Function:query, Function:cb);
+```
+
+Searches collection for documents matching `query`.
+
+If `query` is a string, searches for documents with that as an ID.
+If `query` is a function, searches for documents that return truthy values
+when query is applied to their data.
+
+`cb` takes an error and either a document (if `query` represents an ID) or an array of documents (if `query` is a function).
+
+Example:
+```javascript
+db.find('people', function (person) { return person.name === 'Larry'}, console.log);
+```
+
 ## Contributing
 
 1. `git clone https://github.com/thimoteus/raadb.git`
@@ -62,14 +79,6 @@ To run tests, run `grunt test`.
 
 There are some coding conventions.
 Many functions deal with collections in different ways; a variable named `coll` will always refer to a string referring to the collection's (equivalently, selftext post's) title. `colls` refers to an array of `coll`s. `collection` refers to a reddit [thing](https://www.reddit.com/dev/api#fullnames).
-
-### A note on tests
-
-The `insert` method will pass, but without creating a new document.
-This is because in the method body, the callback is called asynchronously with the comment function.
-In the test for insert, `done()` is called in the callback of `insert`.
-I suspect mocha does not allow the comment function to continue once `done()` is called.
-Testing `insert` manually will create a document, however.
 
 ## License
 
