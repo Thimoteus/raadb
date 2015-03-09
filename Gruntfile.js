@@ -28,6 +28,9 @@ module.exports = function (grunt) {
       },
       mochaTest: {
          test: {
+            options: {
+               sort: true
+            },
             src: ['test/**/*.js']
          }
       }

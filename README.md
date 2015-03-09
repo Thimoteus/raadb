@@ -44,6 +44,28 @@ The api wrapper used by raadb enforces a *maximum* of 1 call/second.
 
 ## API
 
+### createId
+```javascript
+createId();
+```
+
+Creates a base36 id for an object. Returns a combination of a 15-digit pseudorandom integer and the current time, in milliseconds since the epoch.
+
+### docId
+```javascript
+docId(Object:doc);
+```
+
+Returns the ID of a document. `doc` is a reddit Thing.
+
+### docData
+```javascript
+docData(Object:doc);
+```
+
+Returns the decoded document data. `doc` is a reddit Thing.
+
+### insert
 ```javascript
 insert(String:coll, Object:doc, Function:cb);
 ```
@@ -52,6 +74,7 @@ Inserts `doc` into the collection represented by `coll`, then calls the callback
 
 `cb` takes three arguments, an error, an Object collection representing a reddit Thing, and a String representing the id of `doc`.
 
+### find
 ```javascript
 find(String:coll, String/Function:query, Function:cb);
 ```
@@ -66,8 +89,15 @@ when query is applied to their data.
 
 Example:
 ```javascript
-db.find('people', function (person) { return person.name === 'Larry'}, console.log);
+db.find('people', function query(person) { return person.name === 'Larry'; }, console.log);
 ```
+
+### remove
+```javascript
+remove(String:coll, String/Function:query, Function:cb);
+```
+
+Deletes all documents in the collection matching query. Arguments are the same as for `find`.
 
 ## Contributing
 

@@ -5,7 +5,7 @@ var settings = require('../settings'),
    Jaraw = require('jaraw'),
    _ = require('molten-core'),
    jaraw, getListing, getDbEndpt, createComment, createSelfText,
-   getCommentsFromPost;
+   getCommentsFromPost, deleteThing;
 
 jaraw = new Jaraw({
    type: "script",
@@ -40,7 +40,7 @@ getListing = function getListing(endpt, params, cb) {
 };
 
 getDbEndpt = function getDbEndpt(db) {
-   return '/r/' + db + '.json';
+   return '/r/' + db + '/new.json';
 };
 
 createComment = function createComment(thing, msg, cb) {
@@ -92,11 +92,21 @@ getCommentsFromPost = function getCommentsFromPost(sr, post, cb) {
    jaraw.get(endpt, opts, callback);
 };
 
+deleteThing = function deleteThing(thing) {
+   var endpt, opts;
+
+   endpt = '/api/del';
+   opts = {
+      id: thing.name
+   };
+   jaraw.post(endpt, opts);
+};
+
 module.exports = {
-   jaraw: jaraw,
    getListing: getListing,
    getDbEndpt: getDbEndpt,
    createComment: createComment,
    createSelfText: createSelfText,
-   getCommentsFromPost: getCommentsFromPost
+   getCommentsFromPost: getCommentsFromPost,
+   deleteThing: deleteThing
 };

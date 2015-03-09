@@ -8,9 +8,10 @@ var _ = require('molten-core'),
    createComment = mid.createComment,
    createSelfText = mid.createSelfText,
    getCommentsFromPost = mid.getCommentsFromPost,
+   deleteThing = mid.deleteThing,
    verbose = true,
    Raadb, print, say, createId, docId, docData, collectionsExist,
-   createCollection, collToCollection, insert, find;
+   createCollection, collToCollection, insert, find, remove;
 
 print = function print(it) {
    console.log(it);
@@ -25,7 +26,12 @@ say = function say(it) {
 
 // creates a base 36 id
 createId = function createId() {
-   return Date.now().toString(36);
+   var now, rnd;
+   now = Date.now().toString(36);
+   rnd = Math.random();
+   rnd = rnd.toString(36);
+   rnd = _.Str.drop(2, rnd);
+   return now + rnd;
 };
 
 // returns the id of a doc
@@ -166,13 +172,37 @@ find = function find(db, coll, query, cb) {
    collToCollection(db, coll, false, _find);
 };
 
+// Takes a string `db`, string `coll`, string/function `query`, and function
+// `cb`. Deletes any documents matching `query`. See the `find` method for more
+// details on `query`. `cb` is a function that only takes a possible error.
+remove = function remove(db, coll, query, cb) {
+   var _remove;
+
+   _remove = function _remove(err, docs) {
+      if (err) return cb(err);
+      if (docs.length) {
+         _.map(function removeEach(doc) {
+            return deleteThing(doc);
+         }, docs);
+      } else {
+         deleteThing(docs);
+      }
+      return cb(err);
+   };
+
+   find(db, coll, query, _remove);
+};
+
 Raadb = function Raadb(db) {
    // takes a subreddit, then exposes the raadb api
 
-   this.insert = _.curry(insert)(db);
-   this.find = _.curry(find)(db);
+   this.createId = createId;
    this.docId = docId;
    this.docData = docData;
+   // db manipulations
+   this.insert = _.curry(insert)(db);
+   this.find = _.curry(find)(db);
+   this.remove = _.curry(remove)(db);
 };
 
 module.exports = Raadb;
