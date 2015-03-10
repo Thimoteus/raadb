@@ -11,9 +11,8 @@ Much of raadb's syntax is inspired by mongo.
 It treats subreddits as databases, and selftext submissions as collections.
 Documents are comment replies to collections, therefore, inserting a document into a collection is nothing more than submitting a comment to a selftext post in a subreddit.
 
-Every document and collection has a base 36 id, which is always the first line in the body of the document/collection.
-In the case of collections, the ID is the only line in the body.
-For documents, the second line is a base 64 encoding of a `JSON.stringify`ed *something*.
+Every document and collection has a base 36 id, which is supplied by reddit.
+Document data is a base 64 encoding of a `JSON.stringify`ed *something*.
 That *something* can be anything that can successfully be `JSON.stringify`ed, i.e. an object, an array, a string, a boolean, a number, ...
 Just note that prototypes are passed over when serializing to JSON.
 
@@ -44,6 +43,21 @@ The api wrapper used by raadb enforces a *maximum* of 1 call/second.
 
 ## API
 
+### docId
+```javascript
+docId(Object:doc);
+```
+
+Returns the ID of a document. `doc` is a reddit Thing.
+
+### docData
+```javascript
+docData(Object:doc);
+```
+
+Returns the decoded document data. `doc` is a reddit Thing.
+
+### insert
 ```javascript
 insert(String:coll, Object:doc, Function:cb);
 ```
@@ -52,6 +66,7 @@ Inserts `doc` into the collection represented by `coll`, then calls the callback
 
 `cb` takes three arguments, an error, an Object collection representing a reddit Thing, and a String representing the id of `doc`.
 
+### find
 ```javascript
 find(String:coll, String/Function:query, Function:cb);
 ```
@@ -66,7 +81,33 @@ when query is applied to their data.
 
 Example:
 ```javascript
-db.find('people', function (person) { return person.name === 'Larry'}, console.log);
+db.find('people', function query(person) { return person.name === 'Larry'; }, console.log);
+```
+
+### remove
+```javascript
+remove(String:coll, String/Function:query, Function:cb);
+```
+
+Deletes all documents in the collection matching query. Arguments are the same as for `find`.
+
+### update
+```javascript
+update(String:coll, String/Function:query, String/Function:data, Function:cb);
+```
+
+Modifies any documents matching `query` by `data`.
+If `data` isn't a function, will replace the document's data with `data`.
+Otherwise will replace the document's data by applying `data` to it.
+
+Example:
+```javascript
+db.update(
+   'people',
+   function query(person) { return person.name === 'Larry'; },
+   function data(person) { person.name = 'Moe'; return person; },
+   function cb(err) { if (err) throw err; console.log('All Larries are now Moes!') }
+   );
 ```
 
 ## Contributing

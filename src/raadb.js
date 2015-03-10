@@ -8,35 +8,38 @@ var _ = require('molten-core'),
    createComment = mid.createComment,
    createSelfText = mid.createSelfText,
    getCommentsFromPost = mid.getCommentsFromPost,
+   deleteThing = mid.deleteThing,
+   editComment = mid.editComment,
    verbose = true,
-   Raadb, print, say, createId, docId, docData, collectionsExist,
-   createCollection, collToCollection, insert, find;
+   Raadb, print, say, docId, docData, encodeDoc, collectionsExist,
+   createCollection, collToCollection, insert, find, remove, update;
 
 print = function print(it) {
    console.log(it);
    return it;
 };
 say = function say(it) {
-   if (verbose) print(it);
+   if (verbose) return print(it);
 };
 
 // database metafunctions
-// these are not exposed by the raadb api
+// asynchronous functions here are not exposed by the raadb api
 
-// creates a base 36 id
-createId = function createId() {
-   return Date.now().toString(36);
-};
-
-// returns the id of a doc
 docId = function docId(doc) {
-   return _.lines(doc.body)[0];
+   // returns the id of a doc
+   return doc.name;
 };
 
-// returns the data of a doc
 docData = function docData(doc) {
-   data = _.lines(doc.body)[1];
+   // returns the data of a doc
+   var data;
+   data = doc.body;
    return JSON.parse(_.decode64(data));
+};
+
+encodeDoc = function encodeDoc(doc) {
+   // encodes a string, boolean, object, array ...
+   return _.encode64(JSON.stringify(doc));
 };
 
 collectionsExist = function collectionsExist(db, colls, cb) {
@@ -64,16 +67,27 @@ collectionsExist = function collectionsExist(db, colls, cb) {
       return cb(err, xs);
    };
 
-   getListing(endpt, opts, callback);
+   return getListing(endpt, opts, callback);
 };
 
 createCollection = function createCollection(db, coll, cb) {
    // Takes a string `db`, string `coll` and function `cb` and creates a new
    // collection in db, then calls cb.
-   var id;
+   var callback, description;
 
-   id = createId();
-   createSelfText(db, coll, id, cb);
+   print('creating new collection ' + coll);
+
+   description = 'This is a collection for ' +
+      '[reddit as a database](https://www.github.com/thimoteus/raadb).';
+   callback = function callback(err, res, bod) {
+      if (err || !res || (res.statusCode != 200) || !bod) {
+         return cb(new Error('Could not contact reddit'));
+      }
+
+      return cb(err, bod);
+   };
+
+   return createSelfText(db, coll, description, callback);
 };
 
 collToCollection = function collToCollection(db, coll, create, cb) {
@@ -87,7 +101,7 @@ collToCollection = function collToCollection(db, coll, create, cb) {
       var returnsStumpyCollection;
       if (err) return cb(err);
 
-      returnsStumpyCollection = function returnsStumpyCollection(err, res, bod) {
+      returnsStumpyCollection = function returnsStumpyCollection(err, bod) {
          var stumpyCollection = JSON.parse(bod).json.data;
          cb(err, stumpyCollection);
       };
@@ -101,17 +115,17 @@ collToCollection = function collToCollection(db, coll, create, cb) {
       }
    };
 
-   collectionsExist(db, [coll], callback);
+   return collectionsExist(db, [coll], callback);
 };
 
 // database functions
 // these are all exposed by the raadb api
 
-// Takes string `db`, string `coll`, any `doc` and function `cb`.
-// If there's a collection referred to by `coll`, will insert `doc` into
-// that collection. Otherwise, will create a collection and then do the
-// insertion, and calls the callback with the collection and doc id.
 insert = function insert(db, coll, doc, cb) {
+   // Takes string `db`, string `coll`, any `doc` and function `cb`.
+   // If there's a collection referred to by `coll`, will insert `doc` into
+   // that collection. Otherwise, will create a collection and then do the
+   // insertion, and calls the callback with the collection and doc id.
    var _insert;
    if (cb === undefined) cb = _.id;
 
@@ -119,26 +133,33 @@ insert = function insert(db, coll, doc, cb) {
    print(doc);
 
    _insert = function _insert(err, collection) {
-      var docId, docData, hash;
+      var hash, callback;
       if (err) return cb(err);
 
-      docId = createId();
-      docData = _.encode64(JSON.stringify(doc));
-      hash = _.unlines([docId, docData]);
+      hash = encodeDoc(doc);
+      callback = function callback(err, res, bod) {
+         var docId;
+         if (err || !res || (res.statusCode != 200) || !bod) {
+            return cb(new Error('Could not contact reddit'));
+         }
 
-      createComment(collection, hash);
-      cb(err, collection, docId);
+         docId = JSON.parse(bod).json.data.things[0].data.name;
+         return cb(err, collection, docId);
+      };
+
+      return createComment(collection, hash, callback);
    };
 
-   collToCollection(db, coll, true, _insert);
+   return collToCollection(db, coll, true, _insert);
 };
 
-// Takes a string `db`, string `coll`, string/function `query`, and function
-// `cb`. If `query` is a string, will look for documents in the collection
-// such that their id equals `query`. If `query` is a function, will look
-// for all docs such that `query(doc)` is truthy.
-// `cb` accepts two arguments, an error and an array.
 find = function find(db, coll, query, cb) {
+   // Takes a string `db`, string `coll`, string/function `query`, and function
+   // `cb`. If `query` is a string, will look for documents in the collection
+   // such that their id equals `query`. If `query` is a function, will look
+   // for all docs such that `query(doc)` is truthy.
+   // `cb` accepts two arguments, an error and an array of docs/doc, depending on
+   // query.
    var _find, _query;
 
    if (_.isType('String', query)) {
@@ -153,7 +174,7 @@ find = function find(db, coll, query, cb) {
 
    _find = function _find(err, collection) {
       if (err) return cb(err);
-      getCommentsFromPost(db, collection, function (err, docs) {
+      return getCommentsFromPost(db, collection, function (err, docs) {
          var matches;
 
          matches = _.filter(_query, docs);
@@ -163,16 +184,76 @@ find = function find(db, coll, query, cb) {
       });
    };
 
-   collToCollection(db, coll, false, _find);
+   return collToCollection(db, coll, false, _find);
+};
+
+remove = function remove(db, coll, query, cb) {
+   // Takes a string `db`, string `coll`, string/function `query`, and function
+   // `cb`. Deletes any documents matching `query`. See the `find` method for more
+   // details on `query`. `cb` is a function that only takes a possible error.
+   var _remove;
+
+   _remove = function _remove(err, docs) {
+      if (err) return cb(err);
+      if (docs.length) {
+         _.map(function removeEach(doc) {
+            return deleteThing(doc);
+         }, docs);
+      } else {
+         deleteThing(docs);
+      }
+      return cb(err);
+   };
+
+   return find(db, coll, query, _remove);
+};
+
+update = function update(db, coll, query, data, cb) {
+   // Takes a string `db`, string `coll`, string/function `query`, string/function
+   // `data`, function `cb`. Modifies any documents matching `query` by `data`. If
+   // `data` isn't a function, will replace the document's data with `data`.
+   // Otherwise will replace the document's data by applying `data` to it.
+   // Callback only takes a possible error.
+   var _update, _data, updateEach;
+
+   if (!_.isType('Function', data)) {
+      _data = function _data(doc) {
+         return encodeDoc(data);
+      };
+   } else {
+      _data = function _data(doc) {
+         return encodeDoc(docData(doc));
+      };
+   }
+
+   _update = function update(err, matches) {
+      if (err) return cb(err);
+      if (matches.length) {
+         updateEach = function updateEach(doc) {
+            editComment(doc, _data(doc));
+         };
+         _.map2(updateEach, matches);
+      } else {
+         editComment(matches, _data(matches));
+      }
+      return cb(err);
+   };
+
+   return find(db, coll, query, _update);
 };
 
 Raadb = function Raadb(db) {
    // takes a subreddit, then exposes the raadb api
 
-   this.insert = _.curry(insert)(db);
-   this.find = _.curry(find)(db);
    this.docId = docId;
    this.docData = docData;
+   this.encodeDoc = encodeDoc;
+
+   // db manipulations
+   this.insert = _.curry(insert)(db);
+   this.find = _.curry(find)(db);
+   this.remove = _.curry(remove)(db);
+   this.update = _.curry(update)(db);
 };
 
 module.exports = Raadb;

@@ -5,7 +5,7 @@ var settings = require('../settings'),
    Jaraw = require('jaraw'),
    _ = require('molten-core'),
    jaraw, getListing, getDbEndpt, createComment, createSelfText,
-   getCommentsFromPost;
+   getCommentsFromPost, deleteThing, editComment;
 
 jaraw = new Jaraw({
    type: "script",
@@ -40,7 +40,7 @@ getListing = function getListing(endpt, params, cb) {
 };
 
 getDbEndpt = function getDbEndpt(db) {
-   return '/r/' + db + '.json';
+   return '/r/' + db + '/new.json';
 };
 
 createComment = function createComment(thing, msg, cb) {
@@ -58,6 +58,9 @@ createComment = function createComment(thing, msg, cb) {
 };
 
 createSelfText = function createSelfText(sr, title, body, cb) {
+   // Takes a string `sr`, string `title`, string `body`, function `cb`.
+   // Creates a new selftext submission in `sr` with title `title` and body
+   // `body`, then calls `cb`.
    var endpt, opts;
    if (cb === undefined) cb = _.id;
    endpt = '/api/submit';
@@ -75,6 +78,8 @@ createSelfText = function createSelfText(sr, title, body, cb) {
 };
 
 getCommentsFromPost = function getCommentsFromPost(sr, post, cb) {
+   // Takes a string `sr`, object `post`, function `cb`.
+   // `cb` is a function that takes an error and an array of comment things.
    var endpt, opts, callback;
 
    endpt = '/r/' + sr + '/comments/' + post.id + '.json';
@@ -92,11 +97,37 @@ getCommentsFromPost = function getCommentsFromPost(sr, post, cb) {
    jaraw.get(endpt, opts, callback);
 };
 
+deleteThing = function deleteThing(thing) {
+   // Takes an object `thing`, removes it from reddit.
+   var endpt, opts;
+
+   endpt = '/api/del';
+   opts = {
+      id: thing.name
+   };
+   jaraw.post(endpt, opts);
+};
+
+editComment = function editComment(thing, text) {
+   // Takes an object `thing`, string `text`.
+   // Edits `thing` so its new body is `text`.
+   var endpt, opts;
+
+   endpt = '/api/editusertext';
+   opts = {
+      api_type: 'json',
+      thing_id: thing.name,
+      text: text
+   };
+   jaraw.post(endpt, opts);
+};
+
 module.exports = {
-   jaraw: jaraw,
    getListing: getListing,
    getDbEndpt: getDbEndpt,
    createComment: createComment,
    createSelfText: createSelfText,
-   getCommentsFromPost: getCommentsFromPost
+   getCommentsFromPost: getCommentsFromPost,
+   deleteThing: deleteThing,
+   editComment: editComment
 };
