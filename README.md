@@ -11,9 +11,8 @@ Much of raadb's syntax is inspired by mongo.
 It treats subreddits as databases, and selftext submissions as collections.
 Documents are comment replies to collections, therefore, inserting a document into a collection is nothing more than submitting a comment to a selftext post in a subreddit.
 
-Every document and collection has a base 36 id, which is always the first line in the body of the document/collection.
-In the case of collections, the ID is the only line in the body.
-For documents, the second line is a base 64 encoding of a `JSON.stringify`ed *something*.
+Every document and collection has a base 36 id, which is supplied by reddit.
+Document data is a base 64 encoding of a `JSON.stringify`ed *something*.
 That *something* can be anything that can successfully be `JSON.stringify`ed, i.e. an object, an array, a string, a boolean, a number, ...
 Just note that prototypes are passed over when serializing to JSON.
 
@@ -43,13 +42,6 @@ As a result, you will now have 102 collections.
 The api wrapper used by raadb enforces a *maximum* of 1 call/second.
 
 ## API
-
-### createId
-```javascript
-createId();
-```
-
-Creates a base36 id for an object. Returns a combination of a 15-digit pseudorandom integer and the current time, in milliseconds since the epoch.
 
 ### docId
 ```javascript
