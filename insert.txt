@@ -1,2 +1,0 @@
-create-comment {name: 't3_2ye1dl'}, 'this is a comment', (err, res, bod) -> bod |> JSON.parse |> (.json.data.things.0.data) |> console.log
-
