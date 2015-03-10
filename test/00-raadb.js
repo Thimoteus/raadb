@@ -6,17 +6,6 @@ var assert = require('chai').assert,
 
 exports.db = db;
 
-describe('createId', function () {
-   it('should create unique IDs', function () {
-      var id1, id2;
-
-      id1 = db.createId();
-      id2 = db.createId();
-
-      assert.notEqual(id1, id2);
-   });
-});
-
 describe('encodeDoc', function () {
    it('should correctly encode various types', function () {
       assert.strictEqual('dHJ1ZQ==', db.encodeDoc(true));
@@ -31,7 +20,8 @@ describe('docId', function () {
       var doc;
 
       doc = {
-         body: 'abcdefg\nhijklmnop'
+         name: 'abcdefg',
+         body: 'hijklmnop'
       };
 
       assert.strictEqual(db.docId(doc), 'abcdefg');
@@ -48,19 +38,9 @@ describe('docData', function () {
          nuclearLaunchCode: 1234
       };
       doc = {
-         body: _.unlines(['this_is_my_id', db.encodeDoc(data)])
+         body: db.encodeDoc(data)
       };
 
       assert.propertyVal(db.docData(doc), 'nuclearLaunchCode', 1234);
-   });
-});
-
-describe('createDoc', function () {
-   it('should return a string with id and doc data', function () {
-      var id, data;
-
-      id = db.createId();
-      data = { strikes: 2, balls: 3, battingAverage: 0.22 };
-      assert.strictEqual(db.createDoc(id, data), id + '\n' + _.encode64(JSON.stringify(data)));
    });
 });

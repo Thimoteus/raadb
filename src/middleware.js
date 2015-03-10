@@ -58,6 +58,9 @@ createComment = function createComment(thing, msg, cb) {
 };
 
 createSelfText = function createSelfText(sr, title, body, cb) {
+   // Takes a string `sr`, string `title`, string `body`, function `cb`.
+   // Creates a new selftext submission in `sr` with title `title` and body
+   // `body`, then calls `cb`.
    var endpt, opts;
    if (cb === undefined) cb = _.id;
    endpt = '/api/submit';
@@ -75,6 +78,8 @@ createSelfText = function createSelfText(sr, title, body, cb) {
 };
 
 getCommentsFromPost = function getCommentsFromPost(sr, post, cb) {
+   // Takes a string `sr`, object `post`, function `cb`.
+   // `cb` is a function that takes an error and an array of comment things.
    var endpt, opts, callback;
 
    endpt = '/r/' + sr + '/comments/' + post.id + '.json';
@@ -93,6 +98,7 @@ getCommentsFromPost = function getCommentsFromPost(sr, post, cb) {
 };
 
 deleteThing = function deleteThing(thing) {
+   // Takes an object `thing`, removes it from reddit.
    var endpt, opts;
 
    endpt = '/api/del';
@@ -103,6 +109,8 @@ deleteThing = function deleteThing(thing) {
 };
 
 editComment = function editComment(thing, text) {
+   // Takes an object `thing`, string `text`.
+   // Edits `thing` so its new body is `text`.
    var endpt, opts;
 
    endpt = '/api/editusertext';
