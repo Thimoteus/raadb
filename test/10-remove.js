@@ -1,8 +1,7 @@
 var assert = require('chai').assert,
-   Raadb = require('../build/raadb'),
    settings = require('../settings'),
    _ = require('molten-core'),
-   db = new Raadb(settings.subreddit);
+   db = require('./00-raadb').db;
 
 describe('remove', function () {
    this.timeout(0);

@@ -31,7 +31,13 @@ module.exports = function (grunt) {
             options: {
                sort: true
             },
-            src: ['test/**/*.js']
+            src: [
+               'test/00*.js',
+               'test/01*.js',
+               'test/02*.js',
+               'test/04*.js',
+               'test/10*.js'
+            ]
          }
       }
    });

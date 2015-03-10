@@ -99,6 +99,25 @@ remove(String:coll, String/Function:query, Function:cb);
 
 Deletes all documents in the collection matching query. Arguments are the same as for `find`.
 
+### update
+```javascript
+update(String:coll, String/Function:query, String/Function:data, Function:cb);
+```
+
+Modifies any documents matching `query` by `data`.
+If `data` isn't a function, will replace the document's data with `data`.
+Otherwise will replace the document's data by applying `data` to it.
+
+Example:
+```javascript
+db.update(
+   'people',
+   function query(person) { return person.name === 'Larry'; },
+   function data(person) { person.name = 'Moe'; return person; },
+   function cb(err) { if (err) throw err; console.log('All Larries are now Moes!') }
+   );
+```
+
 ## Contributing
 
 1. `git clone https://github.com/thimoteus/raadb.git`
