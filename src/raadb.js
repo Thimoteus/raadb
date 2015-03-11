@@ -2,14 +2,8 @@
 // Version: 0.1.0
 
 var _ = require('molten-core'),
-   mid = require('./middleware'),
-   getDbEndpt = mid.getDbEndpt,
-   getListing = mid.getListing,
-   createComment = mid.createComment,
-   createSelfText = mid.createSelfText,
-   getCommentsFromPost = mid.getCommentsFromPost,
-   deleteThing = mid.deleteThing,
-   editComment = mid.editComment,
+   getDbEndpt, getListing, createComment, createSelfText,
+   getCommentsFromPost, deleteThing, editComment,
    verbose = true,
    Raadb, print, say, docId, docData, encodeDoc, collectionsExist,
    createCollection, collToCollection, insert, find, remove, update;
@@ -242,8 +236,21 @@ update = function update(db, coll, query, data, cb) {
    return find(db, coll, query, _update);
 };
 
-Raadb = function Raadb(db) {
+module.exports = function Raadb(opts) {
    // takes a subreddit, then exposes the raadb api
+   var db = opts.database,
+      mid = new (require('./middleware'))(opts);
+
+   mid.init();
+
+   getDbEndpt = mid.getDbEndpt;
+   getListing = mid.getListing;
+   createComment = mid.createComment;
+   createSelfText = mid.createSelfText;
+   getCommentsFromPost = mid.getCommentsFromPost;
+   deleteThing = mid.deleteThing;
+   editComment = mid.editComment;
+
 
    this.docId = docId;
    this.docData = docData;
@@ -255,5 +262,3 @@ Raadb = function Raadb(db) {
    this.remove = _.curry(remove)(db);
    this.update = _.curry(update)(db);
 };
-
-module.exports = Raadb;

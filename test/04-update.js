@@ -5,7 +5,7 @@ var assert = require('chai').assert,
 
 describe('update', function () {
    var id;
-   this.timeout(0);
+   this.timeout(10000);
 
    before(function (done) {
       db.insert('collection', 'data to be edited', function insert(err, collection, docId) {

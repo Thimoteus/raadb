@@ -4,7 +4,7 @@ var assert = require('chai').assert,
    db = require('./00-raadb').db;
 
 describe('remove', function () {
-   this.timeout(0);
+   this.timeout(10000);
 
    before(function (done) {
       db.remove('collection', _.id, done);

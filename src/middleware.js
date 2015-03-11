@@ -1,25 +1,11 @@
 // Reddit As A DataBase
 // Version: 0.1.0
 
-var settings = require('../settings'),
+var settings,
    Jaraw = require('jaraw'),
    _ = require('molten-core'),
    jaraw, getListing, getDbEndpt, createComment, createSelfText,
    getCommentsFromPost, deleteThing, editComment;
-
-jaraw = new Jaraw({
-   type: "script",
-   login: {
-      username: settings.username,
-      password: settings.password
-   },
-   oauth: {
-      id: settings.id,
-      secret: settings.secret
-   },
-   user_agent: settings.userAgent,
-   rate_limit: 1000
-});
 
 getListing = function getListing(endpt, params, cb) {
    // Takes an endpoint, parameters and callback.
@@ -122,12 +108,32 @@ editComment = function editComment(thing, text) {
    jaraw.post(endpt, opts);
 };
 
-module.exports = {
-   getListing: getListing,
-   getDbEndpt: getDbEndpt,
-   createComment: createComment,
-   createSelfText: createSelfText,
-   getCommentsFromPost: getCommentsFromPost,
-   deleteThing: deleteThing,
-   editComment: editComment
+module.exports = function (opts) {
+   var init;
+
+   this.init = function init() {
+      var settings = opts;
+      jaraw = new Jaraw({
+         type: "script",
+         login: {
+            username: settings.username,
+            password: settings.password
+         },
+         oauth: {
+            id: settings.id,
+            secret: settings.secret
+         },
+         user_agent: settings.userAgent,
+         rate_limit: 1000
+      });
+      return;
+   };
+
+   this.getListing = getListing;
+   this.getDbEndpt = getDbEndpt;
+   this.createComment = createComment;
+   this.createSelfText = createSelfText;
+   this.getCommentsFromPost = getCommentsFromPost;
+   this.deleteThing = deleteThing;
+   this.editComment = editComment;
 };

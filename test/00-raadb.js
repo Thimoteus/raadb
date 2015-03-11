@@ -2,7 +2,7 @@ var assert = require('chai').assert,
    Raadb = require('../src/raadb'),
    settings = require('../settings'),
    _ = require('molten-core'),
-   db = new Raadb(settings.subreddit);
+   db = new Raadb(settings);
 
 exports.db = db;
 
