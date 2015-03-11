@@ -21,8 +21,16 @@ Just note that prototypes are passed over when serializing to JSON.
 `npm install thimoteus/raadb`
 
 ```javascript
+var settings = {
+   "username": "your reddit username",
+   "password": "your reddit password",
+   "id": "your app's client id",
+   "secret": "your app's client secret",
+   "database": "your subreddit to be used as a database",
+   "userAgent": "a string to identify your app"
+};
 var Raadb = require('raadb');
-var db = new Raadb('personal_database_subreddit');
+var db = new Raadb(settings);
 ```
 
 ### Requirements
