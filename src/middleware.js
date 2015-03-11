@@ -1,5 +1,5 @@
 // Reddit As A DataBase
-// Version: 0.1.0
+// Version: 0.4.0
 
 var settings,
    Jaraw = require('jaraw'),
