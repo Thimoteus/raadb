@@ -1,6 +1,6 @@
 {
   "name": "raadb",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "reddit as a database",
   "main": "build/raadb.js",
   "directories": {

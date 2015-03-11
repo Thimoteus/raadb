@@ -1,5 +1,5 @@
 // Reddit As A DataBase
-// Version: 0.1.0
+// Version: 0.4.0
 
 var _ = require('molten-core'),
    getDbEndpt, getListing, createComment, createSelfText,
