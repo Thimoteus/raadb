@@ -17,4 +17,8 @@ describe('remove', function () {
          done();
       });
    });
+
+   after(function (done) {
+      db.removeCollection('collection', done);
+   });
 });

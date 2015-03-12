@@ -6,7 +6,8 @@ var _ = require('molten-core'),
    getCommentsFromPost, deleteThing, editComment,
    verbose = true,
    Raadb, print, say, docId, docData, encodeDoc, collectionsExist,
-   createCollection, collToCollection, insert, find, remove, update;
+   createCollection, collToCollection, insert, find, remove, removeCollection,
+   update;
 
 print = function print(it) {
    console.log(it);
@@ -87,8 +88,8 @@ createCollection = function createCollection(db, coll, cb) {
 collToCollection = function collToCollection(db, coll, create, cb) {
    // Takes a string `db`, string `coll` and function `cb`.
    // If `coll` doesn't refer to an existing collection, creates one,
-   // then calls itself. Otherwise, calls `cb` with possible error, response
-   // object and collection.
+   // then calls itself. Otherwise, calls `cb` with possible error and
+   // collection.
    var callback;
 
    callback = function callback(err, colls) {
@@ -138,7 +139,7 @@ insert = function insert(db, coll, doc, cb) {
          }
 
          docId = JSON.parse(bod).json.data.things[0].data.name;
-         return cb(err, collection, docId);
+         return cb(null, collection, docId);
       };
 
       return createComment(collection, hash, callback);
@@ -196,10 +197,24 @@ remove = function remove(db, coll, query, cb) {
       } else {
          deleteThing(docs);
       }
-      return cb(err);
+      return cb(null);
    };
 
    return find(db, coll, query, _remove);
+};
+
+removeCollection = function removeCollection(db, coll, cb) {
+   // Takes a string `db`, string `coll`, function `cb`. Removes the collection
+   // referenced by `coll`, then calls `cb`, which only takes an error as its
+   // arguments.
+   var _remove;
+
+   _remove = function _remove(err, collection) {
+      if (err) return cb(err);
+      deleteThing(collection);
+      return cb(null);
+   };
+   return collToCollection(db, coll, false, _remove);
 };
 
 update = function update(db, coll, query, data, cb) {
@@ -251,7 +266,7 @@ module.exports = function Raadb(opts) {
    deleteThing = mid.deleteThing;
    editComment = mid.editComment;
 
-
+   // document functions
    this.docId = docId;
    this.docData = docData;
    this.encodeDoc = encodeDoc;
@@ -261,4 +276,5 @@ module.exports = function Raadb(opts) {
    this.find = _.curry(find)(db);
    this.remove = _.curry(remove)(db);
    this.update = _.curry(update)(db);
+   this.removeCollection = _.curry(removeCollection)(db);
 };
