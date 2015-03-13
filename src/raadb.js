@@ -39,27 +39,23 @@ encodeDoc = function encodeDoc(doc) {
 
 collectionsExist = function collectionsExist(db, colls, cb) {
    // Takes an array of collections and a callback.
-   // Callback is a function that takes a possible error,
-   // response object and an array.
+   // Callback is a function that takes a possible error and an array.
    var endpt, opts, callback;
 
    endpt = getDbEndpt(db);
    opts = {
       limit: 100
    };
-   callback = function callback(err, res, listing) {
+   callback = function callback(err, listing) {
+      if (err) return cb(err);
       var f, xs;
-
-      if (err || !res || (res.statusCode != 200) || !listing) {
-         return cb(new Error('Could not contact reddit'));
-      }
 
       f = function f(x) {
          return _.includes(colls, x.title);
       };
       xs = _.filter(f, listing);
 
-      return cb(err, xs);
+      return cb(null, xs);
    };
 
    return getListing(endpt, opts, callback);
@@ -74,12 +70,10 @@ createCollection = function createCollection(db, coll, cb) {
 
    description = 'This is a collection for ' +
       '[reddit as a database](https://www.github.com/thimoteus/raadb).';
-   callback = function callback(err, res, bod) {
-      if (err || !res || (res.statusCode != 200) || !bod) {
-         return cb(new Error('Could not contact reddit'));
-      }
+   callback = function callback(err, bod) {
+      if (err) return cb(err);
 
-      return cb(err, bod);
+      return cb(null, bod);
    };
 
    return createSelfText(db, coll, description, callback);
@@ -104,7 +98,7 @@ collToCollection = function collToCollection(db, coll, create, cb) {
       if (colls.length === 0 && !!create) {
          createCollection(db, coll, returnsStumpyCollection);
       } else if (colls.length > 0) {
-         cb(err, colls[0]);
+         cb(null, colls[0]);
       } else {
          cb(new Error('Collection ' + coll + ' doesn\'t exist'));
       }
@@ -128,17 +122,15 @@ insert = function insert(db, coll, doc, cb) {
    print(doc);
 
    _insert = function _insert(err, collection) {
-      var hash, callback;
       if (err) return cb(err);
+      var hash, callback;
 
       hash = encodeDoc(doc);
-      callback = function callback(err, res, bod) {
-         var docId;
-         if (err || !res || (res.statusCode != 200) || !bod) {
-            return cb(new Error('Could not contact reddit'));
-         }
+      callback = function callback(err, bod) {
+         if (err) return cb(err);
 
-         docId = JSON.parse(bod).json.data.things[0].data.name;
+         var docId = JSON.parse(bod).json.data.things[0].data.name;
+
          return cb(null, collection, docId);
       };
 

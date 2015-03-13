@@ -1,4 +1,4 @@
-# reddit as a database
+# reddit as a database [![David](https://img.shields.io/david/thimoteus/raadb.svg?style=flat-square)](https://david-dm.org/thimoteus/raadb) [![David](https://img.shields.io/david/dev/thimoteus/raadb.svg?style=flat-square)](https://david-dm.org/thimoteus/raadb#info=devDependencies&view=table)
 
 ## About
 

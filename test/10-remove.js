@@ -19,6 +19,8 @@ describe('remove', function () {
    });
 
    after(function (done) {
-      db.removeCollection('collection', done);
+      db.removeCollection('collection', function () {
+         db.find('collection', _.id, done);
+      });
    });
 });
