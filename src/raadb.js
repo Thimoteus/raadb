@@ -46,10 +46,10 @@ collectionsExist = function collectionsExist(db, colls, cb) {
    opts = {
       limit: 100
    };
-   callback = function callback(err, res, listing) {
+   callback = function callback(err, listing) {
       var f, xs;
 
-      if (err || !res || (res.statusCode != 200) || !listing) {
+      if (err || !listing) {
          return cb(new Error('Could not contact reddit'));
       }
 
@@ -73,8 +73,8 @@ createCollection = function createCollection(db, coll, cb) {
 
    description = 'This is a collection for ' +
       '[reddit as a database](https://www.github.com/thimoteus/raadb).';
-   callback = function callback(err, res, bod) {
-      if (err || !res || (res.statusCode != 200) || !bod) {
+   callback = function callback(err, bod) {
+      if (err || !bod) {
          return cb(new Error('Could not contact reddit'));
       }
 
@@ -131,9 +131,9 @@ insert = function insert(db, coll, doc, cb) {
       if (err) return cb(err);
 
       hash = encodeDoc(doc);
-      callback = function callback(err, res, bod) {
+      callback = function callback(err, bod) {
          var docId;
-         if (err || !res || (res.statusCode != 200) || !bod) {
+         if (err || !bod) {
             return cb(new Error('Could not contact reddit'));
          }
 

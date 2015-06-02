@@ -19,8 +19,8 @@ getListing = function getListing(endpt, params, cb) {
    listify = function listify(x) {
       return _.map(function (y) { return y.data; }, JSON.parse(x).data.children);
    };
-   callback = function callback(err, res, bod) {
-      return cb(err, res, listify(bod));
+   callback = function callback(err, bod) {
+      return cb(err, listify(bod));
    };
    return jaraw.get(endpt, params, callback);
 };
@@ -72,8 +72,8 @@ getCommentsFromPost = function getCommentsFromPost(sr, post, cb) {
    opts = {
       limit: 500
    };
-   callback = function callback(err, res, bod) {
-      if (err || !res || (res.statusCode != 200) || !bod) {
+   callback = function callback(err, bod) {
+      if (err || !bod) {
          return cb(new Error('Could not contact reddit'));
       }
       comments = _.map(function (thing) { return thing.data; },
