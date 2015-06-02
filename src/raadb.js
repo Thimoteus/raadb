@@ -58,7 +58,7 @@ collectionsExist = function collectionsExist(db, colls, cb) {
       };
       xs = _.filter(f, listing);
 
-      return cb(err, xs);
+      return cb(null, xs);
    };
 
    return getListing(endpt, opts, callback);
@@ -78,7 +78,7 @@ createCollection = function createCollection(db, coll, cb) {
          return cb(new Error('Could not contact reddit'));
       }
 
-      return cb(err, bod);
+      return cb(null, bod);
    };
 
    return createSelfText(db, coll, description, callback);
@@ -103,7 +103,7 @@ collToCollection = function collToCollection(db, coll, create, cb) {
       if (colls.length === 0 && !!create) {
          createCollection(db, coll, returnsStumpyCollection);
       } else if (colls.length > 0) {
-         cb(err, colls[0]);
+         cb(null, colls[0]);
       } else {
          cb(new Error('Collection ' + coll + ' doesn\'t exist'));
       }
@@ -138,7 +138,7 @@ insert = function insert(db, coll, doc, cb) {
          }
 
          docId = JSON.parse(bod).json.data.things[0].data.name;
-         return cb(err, collection, docId);
+         return cb(null, collection, docId);
       };
 
       return createComment(collection, hash, callback);
@@ -173,8 +173,8 @@ find = function find(db, coll, query, cb) {
 
          matches = _.filter(_query, docs);
 
-         if (_.isType('String', query)) return cb(err, matches[0]);
-         return cb(err, matches);
+         if (_.isType('String', query)) return cb(null, matches[0]);
+         return cb(null, matches);
       });
    };
 
@@ -196,7 +196,7 @@ remove = function remove(db, coll, query, cb) {
       } else {
          deleteThing(docs);
       }
-      return cb(err);
+      return cb(null);
    };
 
    return find(db, coll, query, _remove);
@@ -230,7 +230,7 @@ update = function update(db, coll, query, data, cb) {
       } else {
          editComment(matches, _data(matches));
       }
-      return cb(err);
+      return cb(null);
    };
 
    return find(db, coll, query, _update);
