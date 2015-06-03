@@ -70,7 +70,7 @@ Returns the decoded document data. The argument is a reddit Thing representing a
 ### insert
 ```javascript
 insert :: String -> Doc -> (Nullable Err -> Collection -> String -> ()) -> ()
-insert(coll, doc, function (err, collection, docId) { ... });
+insert(coll, doc, function cb(err, collection, docId) { ... });
 ```
 
 Inserts `doc` into the collection represented by `coll`, then calls the callback `cb`.
@@ -80,7 +80,7 @@ Inserts `doc` into the collection represented by `coll`, then calls the callback
 ### find
 ```javascript
 find :: String -> Either String (Doc -> Bool) -> (Nullable Err -> Either Doc [Doc] -> ()) -> ()
-find(coll, query, function (err, matches) { ... });
+find(coll, query, function cb(err, matches) { ... });
 ```
 
 Searches collection for documents matching `query`.
@@ -99,7 +99,7 @@ db.find('people', function query(person) { return person.name === 'Larry'; }, co
 ### remove
 ```javascript
 remove :: Coll -> Either String (Doc -> Bool) -> (Nullable Err -> ()) -> ()
-remove(coll, query, function (err) { ... });
+remove(coll, query, function cb(err) { ... });
 ```
 
 Deletes all documents in the collection matching query. Arguments are the same as for `find`, with the exception of the callback, which only takes a possible error as an argument.
@@ -107,7 +107,7 @@ Deletes all documents in the collection matching query. Arguments are the same a
 ### update
 ```javascript
 update :: Coll -> Either String (Doc -> Bool) -> Either String (Doc -> Doc) -> (Nullable Err -> ()) -> ()
-update(coll, query, data, function (err) { ... });
+update(coll, query, data, function cb(err) { ... });
 ```
 
 Modifies any documents matching `query` by `data`.
