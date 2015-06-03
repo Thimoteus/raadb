@@ -36,6 +36,7 @@ module.exports = function (grunt) {
                'test/01*.js',
                'test/02*.js',
                'test/04*.js',
+               'test/05*.js',
                'test/10*.js'
             ]
          }

@@ -216,7 +216,7 @@ update = function update(db, coll, query, data, cb) {
       };
    } else {
       _data = function _data(doc) {
-         return encodeDoc(docData(doc));
+         return encodeDoc(data(docData(doc)));
       };
    }
 

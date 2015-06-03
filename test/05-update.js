@@ -3,26 +3,26 @@ var assert = require('chai').assert,
    _ = require('molten-core'),
    db = require('./00-raadb').db;
 
-describe('update without function', function () {
+describe('update with function', function () {
   var id;
   this.timeout(10000);
 
   before(function (done) {
-    db.insert('collection', 'data to be edited', function insert(err, collection, docId) {
+    db.insert('collection', { 'data': "to be edited" }, function insert(err, collection, docId) {
       if (err) throw err;
       id = docId;
-      db.update('collection', docId, 'edited data', function update(err) {
+      db.update('collection', docId, function (o) { o.data = "is now edited"; return o; }, function update(err) {
         if (err) throw err;
         done();
       });
     });
   });
 
-  it('should update a document with new data', function (done) {
+  it('should update a document using a function', function (done) {
     db.find('collection', id, function update(err, doc) {
       if (err) done(err);
 
-      assert.strictEqual(db.docData(doc), 'edited data');
+      assert.propertyVal(db.docData(doc), 'data', "is now edited");
       done();
     });
   });
