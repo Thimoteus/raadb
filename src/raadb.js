@@ -241,7 +241,11 @@ module.exports = function Raadb(opts) {
    var db = opts.database,
       mid = new (require('./middleware'))(opts);
 
-   mid.init();
+   if (opts.jaraw) {
+     mid.init(opts.jaraw);
+   } else {
+     mid.init();
+   }
 
    getDbEndpt = mid.getDbEndpt;
    getListing = mid.getListing;
@@ -250,7 +254,6 @@ module.exports = function Raadb(opts) {
    getCommentsFromPost = mid.getCommentsFromPost;
    deleteThing = mid.deleteThing;
    editComment = mid.editComment;
-
 
    this.docId = docId;
    this.docData = docData;

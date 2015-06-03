@@ -111,21 +111,25 @@ editComment = function editComment(thing, text) {
 module.exports = function (opts) {
    var init;
 
-   this.init = function init() {
+   this.init = function init(j) {
       var settings = opts;
-      jaraw = new Jaraw({
-         type: "script",
-         login: {
-            username: settings.username,
-            password: settings.password
-         },
-         oauth: {
-            id: settings.id,
-            secret: settings.secret
-         },
-         user_agent: settings.userAgent,
-         rate_limit: 1000
-      });
+      if (j instanceof Jaraw) {
+        jaraw = j;
+      } else {
+        jaraw = new Jaraw({
+           type: "script",
+           login: {
+              username: settings.username,
+              password: settings.password
+           },
+           oauth: {
+              id: settings.id,
+              secret: settings.secret
+           },
+           user_agent: settings.userAgent,
+           rate_limit: 1000
+        });
+      }
       return;
    };
 
