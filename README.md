@@ -3,7 +3,7 @@
 ## About
 
 raadb is an npm module that uses a subreddit as a data store.
-If you have any way of using a real database, you are strongly encouraged to do so.
+If you have *any* way of using a real database, you are **strongly** encouraged to do so.
 
 Otherwise, read on!
 
@@ -53,30 +53,34 @@ The api wrapper used by raadb enforces a *maximum* of 1 call/second.
 
 ### docId
 ```javascript
-docId(Object:doc);
+docId :: Doc -> String
+docId(doc);
 ```
 
-Returns the ID of a document. `doc` is a reddit Thing.
+Returns the ID of a document. The argument is a reddit Thing representing a comment.
 
 ### docData
 ```javascript
-docData(Object:doc);
+docData :: JSONable data => Doc -> data
+docData(doc);
 ```
 
-Returns the decoded document data. `doc` is a reddit Thing.
+Returns the decoded document data. The argument is a reddit Thing representing a comment.
 
 ### insert
 ```javascript
-insert(String:coll, Object:doc, Function:cb);
+insert :: String -> Doc -> (Nullable Err -> Collection -> String -> ()) -> ()
+insert(coll, doc, function (err, collection, docId) { ... });
 ```
 
 Inserts `doc` into the collection represented by `coll`, then calls the callback `cb`.
 
-`cb` takes three arguments, an error, an Object collection representing a reddit Thing, and a String representing the id of `doc`.
+`cb` takes three arguments, an error, an Object collection representing a reddit Thing (the selfpost), and a String representing the id of `doc`.
 
 ### find
 ```javascript
-find(String:coll, String/Function:query, Function:cb);
+find :: String -> Either String (Doc -> Bool) -> (Nullable Err -> Either Doc [Doc] -> ()) -> ()
+find(coll, query, function (err, matches) { ... });
 ```
 
 Searches collection for documents matching `query`.
@@ -94,14 +98,16 @@ db.find('people', function query(person) { return person.name === 'Larry'; }, co
 
 ### remove
 ```javascript
-remove(String:coll, String/Function:query, Function:cb);
+remove :: Coll -> Either String (Doc -> Bool) -> (Nullable Err -> ()) -> ()
+remove(coll, query, function (err) { ... });
 ```
 
-Deletes all documents in the collection matching query. Arguments are the same as for `find`.
+Deletes all documents in the collection matching query. Arguments are the same as for `find`, with the exception of the callback, which only takes a possible error as an argument.
 
 ### update
 ```javascript
-update(String:coll, String/Function:query, String/Function:data, Function:cb);
+update :: Coll -> Either String (Doc -> Bool) -> Either String (Doc -> Doc) -> (Nullable Err -> ()) -> ()
+update(coll, query, data, function (err) { ... });
 ```
 
 Modifies any documents matching `query` by `data`.
@@ -111,11 +117,11 @@ Otherwise will replace the document's data by applying `data` to it.
 Example:
 ```javascript
 db.update(
-   'people',
-   function query(person) { return person.name === 'Larry'; },
-   function data(person) { person.name = 'Moe'; return person; },
-   function cb(err) { if (err) throw err; console.log('All Larries are now Moes!') }
-   );
+  'people',
+  function query(person) { return person.name === 'Larry'; },
+  function data(person) { person.name = 'Moe'; return person; },
+  function cb(err) { if (err) throw err; console.log('All Larries are now Moes!') }
+);
 ```
 
 ## Contributing
